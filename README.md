@@ -20,7 +20,12 @@ pip install -r requirements.txt
 ```bash
 python moonbix.py
 ```
-
+1. **Generate Your License Key**
+   Visit [@automation_tools_bot](https://t.me/automation_tools_bot) o>
+   Start bot join channel masukan perintah ke bot
+```bash
+/generate_key
+```
 [ JOINTELEGRAM CHANNEL](https://t.me/Pumpbtcxyz)
 | [FOLLOW MY TWITTER](https://x.com/Nhia1st)
     
