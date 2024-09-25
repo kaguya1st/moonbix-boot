@@ -26,22 +26,22 @@ def start_script():
     while True:
         awak()
         tokens = load_tokens()
-        log(Colors.GREEN + f' Jumblah Accounts Terdeteksi {Colors.GREEN}{len(tokens)}')
+        log(Colors.CYAN + f' Number of Accounts {Colors.GREEN}{len(tokens)}')
         
         for index, token in enumerate(tokens):
             try:
                 log_line()
-                countdown_timer(config('TIME_BETWEEN_ACCOUNTS', 10))
+                countdown_timer(random.randint(config('MIN_TIME_BETWEEN_ACCOUNTS', 10), config('MAX_TIME_BETWEEN_ACCOUNTS', 15)))
                 account = MoonBix(token, random_proxy(), config('TIMEOUT', 6))
                 log(f'{Colors.BLUE} Account Number : {Colors.GREEN}{index+1}')
                 log(f'{Colors.BLUE} Account Username : {Colors.GREEN}{get_username(token)}')
-                log(f'{Colors.YELLOW} Mencoba untuk Login ...')
+                log(f'{Colors.YELLOW} Trying To Login ...')
                 res = account.login()
 
-                if res == 'success': log(f'{Colors.GREEN} Done Login Success Bro.. !')
+                if res == 'success': log(f'{Colors.GREEN} Done Login Success !')
                 else:
                     if res == 'fail':
-                        log(f'{Colors.RED} Faild To Login Please Check Query nya bro ambil ulang kalu erorr!')
+                        log(f'{Colors.RED} Faild To Login Please Check Account Token !')
                     else:
                         log(f'{Colors.BLACK} {res}')
                         log(f'{Colors.RED} UnExpected Erro Please Contact With Devoloper To Fix !')
@@ -90,19 +90,43 @@ def start_script():
                     
                     countdown_timer(config('GAME_TIME', 42))
 
+                    key = config('KEY', 'NOT SET')
+                    if key == 'NOT SET':
+                        log(f'{Colors.RED} Please Set Access Key First.')
+                        exit_code()
+                    
                     log(f' {Colors.BLUE}Getting game data ... ')
                     
                     retry = config('MAX_RETRY', 3)
                     for __ in range(retry):
-                        res = account.game_data()
+                        res, status_code = account.game_data(key)
                         if res == 'success':
                             log(f' {Colors.GREEN}Done Game Data Dumped !')
                             retry = 0
                             break
+                        
+                        if status_code==429:
+                            log(f'{Colors.RED} Rate Limit For this key !')
+                            retry = 1
+                            break
+                        
+                        if status_code==403:
+                            log(f'{Colors.RED} This key is Not Active !')
+                            retry = 1
+                            break
+
+                        if status_code==401:
+                            log(f'{Colors.RED} Invaild Key !')
+                            retry = 1
+                            break
+                        
+                        if status_code==400:
+                            log(f'{Colors.RED} Key is Required !')
+                            retry = 1
+                            break
                     
                     if retry:
                         log(f' {Colors.RED}Faild To Dump Game Data !')
-                        log(f' {Colors.RED}If This message appear more than onece Please Tell The Devoloer [WARRING] !')
                         log(f' {Colors.RED}{res}')
                         continue
 
@@ -113,20 +137,20 @@ def start_script():
                     log(f' {Colors.BLUE}Completing The Game ...')
 
                     if res == 'success':
-                        log(f' {Colors.GREEN}Success Bro Dapet + {account.game["log"]} Point')
+                        log(f' {Colors.GREEN}Success + {account.game["log"]} (^__*)')
                     else:
                         log(f' {Colors.RED}Faild To Dump Game Data !')
                         log(f' {Colors.RED}If This message appear more than onece Please Tell The Devoloer [WARRING] !')
                         continue
                     
-                    countdown_timer(config('DELAY_AFTER_GAME', 5))
+                    countdown_timer(random.randint(config('MIN_DELAY_AFTER_GAME', 5), config('MAX_DELAY_AFTER_GAME', 9)))
 
                 countdown_timer(config('SMALL_DELAY', 3))
             except KeyboardInterrupt:
                 exit_code()
             except Exception as E:
                 log(f'{Colors.RED} {E}')
-        countdown_timer(config('DELAY_BEFORE_RESTART', 70))
+        countdown_timer(random.randint(config('MIN_DELAY_BEFORE_RESTART', 700), config('MAX_DELAY_BEFORE_RESTART', 1000)))
             
 
 def edit_config():
@@ -161,14 +185,14 @@ def edit_config():
     while True:
         value = input(f'{Colors.GREEN} {conf[choice][0]} = ')
         
-        try:int(value)
-        except:
-            print(f'{Colors.YELLOW} Enter Vaild Number !')
+        if not value.strip():
+            print(f'{Colors.YELLOW} Enter Vaild Value !')
             continue
-
         break
     
-    edit_config_value(conf[choice][0], eval(value))
+    try: value = eval(value)
+    except: pass
+    edit_config_value(conf[choice][0], value)
 
     awak()
     menu()
@@ -176,9 +200,9 @@ def edit_config():
     
 def about_devoloper():
     awak()
-    print(f"{Colors.BLUE} Devoloper : {Colors.CYAN}Kaguya Shinomiya")
-    print(f"{Colors.BLUE} Github : {Colors.CYAN}https://github.com/kaguya1st")
-    print(f"{Colors.BLUE} Telegram Channel : {Colors.CYAN}https://t.me/Pumpbtcxyz")
+    print(f"{Colors.BLUE} Devoloper : {Colors.GREEN}Abdo Sleem")
+    print(f"{Colors.BLUE} Github : {Colors.GREEN}https://github.com/scriptvip")
+    print(f"{Colors.BLUE} Telegram : {Colors.GREEN}https://t.me/glitch_no")
     log_line()
     input(f"\n   {Colors.YELLOW} Press Enter To Back !")
     awak()
